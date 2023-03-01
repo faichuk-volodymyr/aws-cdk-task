@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
-import { AwsCdkTaskStack } from '../lib/aws-cdk-task-stack';
+import { App } from '@aws-cdk/core';
+import { AwsCdkTaskStack } from './aws-cdk-task-stack';
 
-const app = new cdk.App();
-new AwsCdkTaskStack(app, 'AwsCdkTaskStack', {
+const app = new App();
+
+const stage = process.env.DEPLOYMENT_ENV || 'dev';
+
+new AwsCdkTaskStack(app, `product-api-stack-${stage}`, {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

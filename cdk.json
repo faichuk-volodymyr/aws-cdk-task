@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/aws-cdk-task.ts",
+  "app": "npx ts-node --prefer-ts-exts infra/aws-cdk-task.ts",
   "watch": {
     "include": [
       "**"
