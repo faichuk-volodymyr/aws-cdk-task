@@ -1,5 +1,3 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-
 export interface ProductInterface {
   id: string,
   title: string,
@@ -17,6 +15,7 @@ export interface ProductInterface {
 
 export interface ProductServiceInterface {
   getAllProducts: () => Promise<ProductInterface[]>,
-  create: (product: Omit<ProductInterface, 'id'>) => Promise<ProductInterface>,
-  update: (productId: string) => Promise<ProductInterface[]>,
+  create: (product: Omit<ProductInterface, 'id'>) => Promise<string>,
+  update: (productId: string, product: Omit<ProductInterface, 'id' | 'count'>) => Promise<string>,
+  delete: (productId: string) => Promise<string>
 }

@@ -11,6 +11,8 @@
   "types": "./handler.d.ts",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.282.0",
-    "@aws-sdk/util-dynamodb": "^3.282.0"
+    "@aws-sdk/util-dynamodb": "^3.282.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.8.2"
   }
 }

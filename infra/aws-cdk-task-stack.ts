@@ -3,8 +3,6 @@ import { Function, Runtime, Code } from '@aws-cdk/aws-lambda';
 import { RestApi, LambdaIntegration } from '@aws-cdk/aws-apigateway';
 import { Role } from "@aws-cdk/aws-iam";
 
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
-
 const dynamoDbAccessRoleArn = "arn:aws:iam::581741678738:role/DynamoDBLambdaAccessRole";
 
 const DEFAULT_DEPLOYMENT_ENV = 'dev';
@@ -38,9 +36,7 @@ export class AwsCdkTaskStack extends Stack {
       runtime: Runtime.NODEJS_16_X,
       handler: 'handler.getProductList',
       code: Code.fromAsset('src'),
-      environment: {
-        TABLE_NAME: "PRODUCT_TABLE",
-      }
+      role: dynamoDbAccessRole,
     });
 
     const productsResource = api.root.addResource('products');
@@ -70,6 +66,7 @@ export class AwsCdkTaskStack extends Stack {
       runtime: Runtime.NODEJS_16_X,
       handler: 'handler.deleteProduct',
       code: Code.fromAsset('src'),
+      role: dynamoDbAccessRole
     });
 
     const productByIdResource = productsResource.addResource('{productId}');
@@ -79,16 +76,17 @@ export class AwsCdkTaskStack extends Stack {
       new LambdaIntegration(deleteProductLambda),
     );
 
-    // editProduct
-    const editProductLambda = new Function(this, `edit-product-${stage}`, {
+    // updateProduct
+    const updateProductLambda = new Function(this, `update-product-${stage}`, {
       runtime: Runtime.NODEJS_16_X,
       handler: 'handler.editProduct',
       code: Code.fromAsset('src'),
+      role: dynamoDbAccessRole,
     });
 
     productByIdResource.addMethod(
       'PATCH',
-      new LambdaIntegration(editProductLambda),
+      new LambdaIntegration(updateProductLambda),
     );
   }
 }

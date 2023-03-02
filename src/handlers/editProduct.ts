@@ -1,33 +1,32 @@
 import { DEFAULT_HEADERS } from "../constants";
 import { ProductServiceInterface } from "../services/products";
+import { winstonLogger } from "../utils/logger";
+import { errorResponse, successResponse } from "../utils/responseBuilder";
 
 export const updateProductHandler = (productService: ProductServiceInterface) => async (event: {
   pathParameters: { productId: string };
+  body: string,
 }) => {
   try {
+    winstonLogger.logRequest(`Incoming event: ${ JSON.stringify( event ) }`);
+    
     const { productId } = event.pathParameters;
-      const products = await productService.update(productId);
-      return {
-        body: JSON.stringify({
-          products,
-          event,
-        }),
-        headers: {
-          ...DEFAULT_HEADERS
-        },
-        statusCode: 200,
-      };
-  } catch (err) {
-    console.error(err);
-    return {
-      body: JSON.stringify({
-        message: "Something went wrong"
-      }),
-      headers: {
-        ...DEFAULT_HEADERS
-      },
-      statusCode: 200,
-    };
+
+    const productToUpdate = JSON.parse(event.body);
+
+    const { title, description, price } = productToUpdate;
+
+    if (!title || !description || price === undefined ) {
+      throw new Error('Missing required field.');
+    }
+
+    const updatedProductResponse = await productService.update(productId, productToUpdate);
+
+    winstonLogger.logRequest(`"Update product: ${updatedProductResponse}`);
+
+    return successResponse(updatedProductResponse);
+  } catch (error) {
+    return errorResponse(error as Error);
   }
 }
 

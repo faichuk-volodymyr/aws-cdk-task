@@ -1,20 +1,23 @@
-import { DEFAULT_HEADERS } from "../constants";
+import { winstonLogger } from "../utils/logger";
+import { ProductServiceInterface } from "../services/products";
+import { errorResponse, successResponse } from "../utils/responseBuilder";
 
-const deleteProduct = async function (event: {
-  queryStringParameters: {}; 
+const deleteProductHandler = (productService: ProductServiceInterface) => async (event: {
   pathParameters: { productId: string };
-}) {
-  const { productId } = event.pathParameters;
+}) => {
+  try {
+    winstonLogger.logRequest(`Incoming event: ${ JSON.stringify( event ) }`);
 
-  return {
-    body: JSON.stringify({
-      message: `Product ${productId} successfully deleted.`
-    }),
-    headers: {
-      ...DEFAULT_HEADERS
-    },
-    statusCode: 200,
-  };
-};
+    const { productId } = event.pathParameters;
 
-export default deleteProduct;
+    const deleteProductResponse = await productService.delete(productId);
+
+    winstonLogger.logRequest(`"Deleted product: ${deleteProductResponse}`);
+
+    return successResponse(deleteProductResponse);
+  } catch (error) {
+    return errorResponse(error as Error)
+  }
+}
+
+export default deleteProductHandler;

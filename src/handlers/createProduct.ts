@@ -1,34 +1,29 @@
 
-import { DEFAULT_HEADERS } from "../constants";
-import { ProductInterface, ProductServiceInterface } from "../services/products";
+import { ProductServiceInterface } from "../services/products";
+import { winstonLogger } from "../utils/logger";
+import { errorResponse, successResponse } from "../utils/responseBuilder";
 
 export const createProductHandler = (productService: ProductServiceInterface) => async (event: {
   body: string
 }) => {
   try {
+    winstonLogger.logRequest(`Incoming event: ${ JSON.stringify( event ) }`);
 
-    console.info("EventBody", event.body);
+    const productToCreate = JSON.parse(event.body);
 
-      const product = await productService.create(JSON.parse(event.body));
+    const { title, description, price, count } = productToCreate;
 
-      return {
-        body: JSON.stringify(product),
-        headers: {
-          ...DEFAULT_HEADERS
-        },
-        statusCode: 200,
-      };
+    if (!title || !description || price === undefined || count === undefined ) {
+      throw new Error('Missing required field.');
+    }
 
-  } catch (err) {
-    return {
-      body: JSON.stringify({
-        message: "Something went wrong"
-      }),
-      headers: {
-        ...DEFAULT_HEADERS
-      },
-      statusCode: 200,
-    };
+    const createProductResponseMessage = await productService.create(productToCreate);
+
+    winstonLogger.logRequest(`"Created product: ${createProductResponseMessage}`);
+
+    return successResponse({ massage: createProductResponseMessage });
+  } catch (error) {
+    return errorResponse(error as Error)
   }
 }
 

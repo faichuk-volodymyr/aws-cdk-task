@@ -1,28 +1,18 @@
-import { DEFAULT_HEADERS } from "../constants";
+import { winstonLogger } from "../utils/logger";
 import { ProductServiceInterface } from "../services/products";
+import { errorResponse, successResponse } from "../utils/responseBuilder";
 
 const getProductList = (productService: ProductServiceInterface) => async (event: {}) => {
   try {
-      const products = await productService.getAllProducts();
+    winstonLogger.logRequest(`Incoming event: ${ JSON.stringify( event ) }`);
 
-      return {
-        body: JSON.stringify(products),
-        headers: {
-          ...DEFAULT_HEADERS
-        },
-        statusCode: 200,
-      };
+    const products = await productService.getAllProducts();
+
+    winstonLogger.logRequest(`"Received products: ${ JSON.stringify( products ) }`);
+
+    return successResponse(products)
   } catch (error) {
-      console.error(error);
-      return {
-        body: JSON.stringify({
-          message: "Something went wrong"
-        }),
-        headers: {
-          ...DEFAULT_HEADERS
-        },
-        statusCode: 200,
-    };
+    return errorResponse(error as Error)
   }
 }
 
